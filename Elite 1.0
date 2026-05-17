@@ -304,6 +304,24 @@ footer{background:var(--k2);border-top:1px solid rgba(196,163,90,.08);padding:80
 .faw{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:4px;color:var(--g);display:flex;align-items:center;gap:10px}
 .faw::before,.faw::after{content:'★';color:rgba(196,163,90,.4)}
 
+/* === LANGUAGE SELECTOR BOTTOM LEFT === */
+.lang-select-wrapper {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+}
+
+.lang-text-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-family: sans-serif;
+  margin-left: 4px;
+}
+
 /* ═══ AI CHAT ═══ */
 #chat-fab{position:fixed;bottom:32px;right:32px;z-index:1000;width:60px;height:60px;background:var(--g);border-radius:50%;border:none;cursor:none;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(196,163,90,.4);transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,background .3s}
 #chat-fab:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 16px 48px rgba(196,163,90,.5);background:var(--gl)}
