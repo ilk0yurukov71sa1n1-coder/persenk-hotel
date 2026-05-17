@@ -88,13 +88,7 @@ nav.solid{background:rgba(4,4,11,.94);backdrop-filter:blur(28px);padding:14px 64
   box-shadow:0 8px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(196,163,90,.08);
   transition:opacity .3s,transform .3s;
 }
-#lang-bar:hover{opacity:1;box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(196,163,90,.12)}
-.lang-label-txt{
-  font-family:'Jost',sans-serif;font-weight:200;
-  font-size:9.5px;letter-spacing:1.2px;
-  color:rgba(242,235,224,.35);
-  white-space:nowrap;line-height:1;
-  pointer-events:none;user-select:none;
+
 }
 .lang-sep{width:1px;height:14px;background:rgba(196,163,90,.2);flex-shrink:0}
 .lang-btns{display:flex;align-items:center;gap:0;border:1px solid rgba(196,163,90,.22);border-radius:2px;overflow:hidden}
