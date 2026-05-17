@@ -1394,3 +1394,227 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
 </script>
 </body>
 </html>
+<style>
+/* Бутони за езика горе в десния ъгъл */
+.lang-switcher {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 99999;
+    display: flex;
+    gap: 10px;
+}
+.lang-btn {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.lang-btn.active {
+    background: #b8914a; /* Златен премиум цвят */
+    border-color: #b8914a;
+    box-shadow: 0 4px 15px rgba(184, 145, 74, 0.4);
+}
+
+/* Иконка-балонче за чата долу вдясно */
+.chat-widget-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 99999;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+.chat-button-trigger {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #b8914a;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ултра модерен стъклен чат прозорец */
+.chat-box-window {
+    display: none;
+    position: fixed;
+    bottom: 105px;
+    right: 25px;
+    width: 320px;
+    height: 420px;
+    background: rgba(15, 15, 15, 0.65); 
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+}
+.chat-box-header {
+    background: rgba(184, 145, 74, 0.15);
+    padding: 16px;
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-box-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 22px;
+}
+.chat-box-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-bubble {
+    padding: 11px 15px;
+    border-radius: 16px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.bubble-bot {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.bubble-user {
+    background: #b8914a;
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+.chat-box-options {
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.option-click-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 13px;
+}
+</style>
+
+<div class="lang-switcher">
+    <button class="lang-btn active" id="btn-bg" onclick="changeSiteLang('bg')">BG</button>
+    <button class="lang-btn" id="btn-en" onclick="changeSiteLang('en')">EN</button>
+</div>
+
+<div class="chat-widget-container">
+    <button class="chat-button-trigger" onclick="toggleChatWindow()">💬</button>
+    <div class="chat-box-window" id="hotelChatWindow">
+        <div class="chat-box-header">
+            <span id="chatTitle">Рецепция Персенк</span>
+            <button class="chat-box-close" onclick="toggleChatWindow()">×</button>
+        </div>
+        <div class="chat-box-body" id="hotelChatBody">
+            <div class="chat-bubble bubble-bot" id="chatGreet">
+                Здравейте! Добре дошли в уебсайта на СПА Хотел Персенк 5★. С какво мога да Ви помогна днес?
+            </div>
+        </div>
+        <div class="chat-box-options" id="hotelChatOptions"></div>
+    </div>
+</div>
+
+<script>
+let activeLanguage = 'bg';
+const botBrain = {
+    bg: [
+        { q: "💧 Минерална вода", a: "СПА Хотел Персенк предлага директен достъп до девинска минерална вода във всички басейни и термални зони, изключително полезна за релакс и здраве." },
+        { q: "🧖‍♂️ СПА и Релакс", a: "Нашият СПА център включва вътрешни басейни, джакузи, сауна парк, парна баня и голям избор от професионални масажи и терапии." },
+        { q: "📞 Резервации", a: "За информация относно свободни места и резервации, моля свържете се с рецепция на тел: +359 888 XXX XXX." }
+    ],
+    en: [
+        { q: "💧 Mineral Water", a: "SPA Hotel Persenk offers direct access to natural Devin mineral water in all pools and thermal areas, perfect for health and relaxation." },
+        { q: "🧖‍♂️ SPA & Wellness", a: "Our SPA center features indoor pools, jacuzzi, saunas, steam room, and premium body massage treatments." },
+        { q: "📞 Reservations", a: "To book your stay or check availability, please contact our front desk directly at phone: +359 888 XXX XXX." }
+    ]
+};
+
+function toggleChatWindow() {
+    const w = document.getElementById('hotelChatWindow');
+    w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
+    if(w.style.display === 'flex') renderChatOptions();
+}
+
+function renderChatOptions() {
+    const container = document.getElementById('hotelChatOptions');
+    container.innerHTML = '';
+    botBrain[activeLanguage].forEach(item => {
+        const b = document.createElement('button');
+        b.className = 'option-click-btn';
+        b.innerText = item.q;
+        b.onclick = () => askBot(item.q, item.a);
+        container.appendChild(b);
+    });
+}
+
+function askBot(question, answer) {
+    const body = document.getElementById('hotelChatBody');
+    const uDiv = document.createElement('div');
+    uDiv.className = 'chat-bubble bubble-user';
+    uDiv.innerText = question;
+    body.appendChild(uDiv);
+    
+    setTimeout(() => {
+        const bDiv = document.createElement('div');
+        bDiv.className = 'chat-bubble bubble-bot';
+        bDiv.innerText = answer;
+        body.appendChild(bDiv);
+        body.scrollTop = body.scrollHeight;
+    }, 300);
+}
+
+function changeSiteLang(lang) {
+    activeLanguage = lang;
+    document.getElementById('btn-bg').classList.remove('active');
+    document.getElementById('btn-en').classList.remove('active');
+    document.getElementById('btn-' + lang).classList.add('active');
+    
+    const title = document.getElementById('chatTitle');
+    const greet = document.getElementById('chatGreet');
+    
+    if(lang === 'en') {
+        title.innerText = "Persenk Reception";
+        greet.innerText = "Hello! Welcome to the SPA Hotel Persenk 5★ website. How can I assist you today?";
+    } else {
+        title.innerText = "Рецепция Персенк";
+        greet.innerText = "Здравейте! Добре дошли в уебсайта на СПА Хотел Персенк 5★. С какво мога да Ви помогна днес?";
+    }
+    renderChatOptions();
+}
+</script>
+</body>
+</html>
