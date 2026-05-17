@@ -1440,7 +1440,7 @@ HTML = f"""<!DOCTYPE html>
     <li><a href="#offers"></a></li>
     <li><a href="#loc"></a></li>
   </ul>
-  <div class="nav-right">
+  
     <div class="lang-toggle">
       <div class="lang-btn" data-lang="bg">BG</div>
       <div class="lang-sep"></div>
@@ -1774,3 +1774,48 @@ size = os.path.getsize(out)
 print(f"✓ Written: {size/1024/1024:.2f} MB — {out}")
 BUILDEOF
 python3 /home/claude/build.py
+## 🏷️ UI Enhancement: Relocate Language Switcher to Bottom Left (Mobile View)
+
+### 📝 Description
+We need to improve the mobile user experience by repositioning the language switcher (`BG` / `EN` buttons) from the top header overlay to a fixed/sticky position in the bottom left corner of the viewport, matching our updated design specifications. 
+
+### 📸 Visual Reference
+* **Current Implementation:** Language buttons sit at the top right, clashing with the header text/navigation overlay.
+* **Target Design:** Move buttons to the bottom left with a clean label: `Language Select: BG / EN`.
+
+---
+
+### 🛠️ Technical Requirements & Implementation Steps
+
+1. **Component Restructuring:**
+   * Relocate the Language Switcher component from the top navigation/header container to the main layout wrapper or fixed overlay container.
+   
+2. **Styling & Positioning (CSS/Tailwind):**
+   * Apply fixed positioning to ensure it stays anchored at the bottom left of the mobile viewport.
+   * **Target CSS Properties:**
+     ```css
+     .language-switcher-container {
+       position: fixed;
+       bottom: 24px; /* Adjust spacing according to grid */
+       left: 16px;
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       z-index: 50; /* Ensure it stays above background elements but below modals */
+     }
+     ```
+
+3. **UI Enhancements:**
+   * Retain the existing pill-button styles for **BG** (active/gold background) and **EN** (inactive/dark transparent background).
+   * Add a text label to the right of the buttons reading: `"Language Select: BG / EN"` in a subtle, readable font color (e.g., light gray/off-white) to match the elegant aesthetic.
+
+4. **Responsive Behavior:**
+   * This layout change should specifically target mobile and tablet breakpoints. Ensure it does not break or overlap with desktop navigation layouts.
+
+---
+
+### ✅ Acceptance Criteria
+* [ ] Language switcher buttons are successfully moved to the bottom-left corner on mobile devices.
+* [ ] The text "Language Select: BG / EN" is visible next to the selectors.
+* [ ] Buttons remain fully functional and toggle languages correctly upon tapping.
+* [ ] The switcher has proper `z-index` configuration so it doesn't get cut off by background sections or float uncomfortably over primary text.
