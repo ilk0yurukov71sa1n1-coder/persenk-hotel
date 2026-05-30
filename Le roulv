@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Le Roulv — Ghost</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel+Decorative:wght@400;700&family=Raleway:wght@100;200;300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --ivory: #fdfaf4;
+      --gold: #c9a84c;
+      --gold-light: #e8d5a3;
+      --navy: #0d1b2a;
+      --navy-mid: #162336;
+      --ink: #1a1a2e;
+      --ghost: rgba(255,255,255,0.06);
+      --glass: rgba(255,255,255,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #050a12;
+      color: var(--cream);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 200;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CURSOR ─── */
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.1s, opacity 0.2s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: all 0.18s ease;
+    }
+
+    /* ─── CANVAS ─── */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── LANGUAGE SWITCHER ─── */
+    #lang-switcher {
+      position: fixed;
+      top: 28px; right: 36px;
+      z-index: 100;
+      display: flex;
+      gap: 14px;
+    }
+    #lang-switcher button {
+      background: none;
+      border: none;
+      color: rgba(245,240,232,0.45);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.3s;
+      padding: 0;
+    }
+    #lang-switcher button.active,
+    #lang-switcher button:hover { color: var(--gold); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 90;
+      padding: 26px 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(5,10,18,0.9) 0%, transparent 100%);
+    }
+    .nav-logo {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 15px;
+      letter-spacing: 0.22em;
+      color: var(--cream);
+      text-decoration: none;
+      font-weight: 400;
+    }
+    .nav-links {
+      display: flex;
+      gap: 38px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(245,240,232,0.55);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-weight: 300;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ─── SECTIONS ─── */
+    section { position: relative; z-index: 1; }
+
+    /* ─── HERO ─── */
+    #hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 38px;
+      opacity: 0;
+      animation: fadeUp 1.2s 0.4s forwards;
+    }
+
+    .logo-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 44px;
+      opacity: 0;
+      animation: fadeIn 1.8s 0.8s forwards;
+    }
+
+    .logo-svg {
+      width: 220px;
+      height: 220px;
+      filter: drop-shadow(0 0 30px rgba(201,168,76,0.3));
+    }
+
+    .hero-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(38px, 7vw, 88px);
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      color: var(--ivory);
+      line-height: 1.1;
+      opacity: 0;
+      animation: fadeUp 1.2s 1.1s forwards;
+    }
+    .hero-title span { color: var(--gold); }
+
+    .hero-sub {
+      margin-top: 22px;
+      font-size: 13px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      opacity: 0;
+      animation: fadeUp 1.2s 1.4s forwards;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: rgba(201,168,76,0.5);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      animation: pulse 2.4s infinite;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 54px;
+      background: linear-gradient(180deg, var(--gold), transparent);
+    }
+
+    /* ─── MANIFESTO ─── */
+    #manifesto {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 44px;
+    }
+
+    .manifesto-inner {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 9px;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 52px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      max-width: 120px;
+    }
+
+    .manifesto-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 3.5vw, 36px);
+      line-height: 1.65;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream);
+    }
+    .manifesto-text em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .manifesto-signature {
+      margin-top: 60px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .signature-line { width: 60px; height: 1px; background: var(--gold); opacity: 0.5; }
+    .signature-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 15px;
+      color: rgba(201,168,76,0.7);
+    }
+
+    /* ─── ABOUT ─── */
+    #about {
+      padding: 120px 44px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .about-left h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 36px;
+      color: var(--cream);
+    }
+    .about-left h2 span { color: var(--gold); }
+    .about-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      line-height: 1.85;
+      color: rgba(245,240,232,0.8);
+    }
+    .about-right {
+      padding-top: 60px;
+    }
+    .about-stat {
+      border-top: 1px solid rgba(201,168,76,0.2);
+      padding: 28px 0;
+    }
+    .about-stat:last-child { border-bottom: 1px solid rgba(201,168,76,0.2); }
+    .stat-number {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 38px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.4);
+    }
+
+    /* ─── FABRICS ─── */
+    #fabrics {
+      padding: 120px 44px;
+      background: linear-gradient(180deg, transparent 0%, rgba(201,168,76,0.04) 50%, transparent 100%);
+    }
+    .fabrics-header {
+      text-align: center;
+      margin-bottom: 90px;
+    }
+    .fabrics-header h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 18px;
+    }
+    .fabrics-header p {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 18px;
+      color: rgba(245,240,232,0.5);
+    }
+
+    .fabrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .fabric-card {
+      position: relative;
+      padding: 52px 40px;
+      background: var(--ghost);
+      border: 1px solid rgba(201,168,76,0.08);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: all 0.5s ease;
+      cursor: pointer;
+    }
+    .fabric-card:hover {
+      background: rgba(201,168,76,0.06);
+      border-color: rgba(201,168,76,0.25);
+      transform: translateY(-4px);
+    }
+    .fabric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform: scaleX(0);
+      transition: transform 0.5s;
+    }
+    .fabric-card:hover::before { transform: scaleX(1); }
+
+    .fabric-icon {
+      font-size: 42px;
+      margin-bottom: 24px;
+      opacity: 0.75;
+    }
+    .fabric-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 18px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+    .fabric-origin {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.5);
+      margin-bottom: 20px;
+    }
+    .fabric-desc {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: rgba(245,240,232,0.7);
+    }
+    .fabric-props {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .prop-tag {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid rgba(201,168,76,0.25);
+      color: rgba(201,168,76,0.7);
+    }
+
+    /* ─── PHILOSOPHY ─── */
+    #philosophy {
+      padding: 140px 44px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    #philosophy h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(26px, 4vw, 46px);
+      color: var(--cream);
+      margin-bottom: 70px;
+      font-weight: 400;
+    }
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-bottom: 80px;
+    }
+    .pillar {
+      text-align: left;
+      padding: 36px 28px;
+      border-left: 1px solid rgba(201,168,76,0.2);
+      transition: border-color 0.4s;
+    }
+    .pillar:hover { border-left-color: var(--gold); }
+    .pillar-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 48px;
+      color: rgba(201,168,76,0.2);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .pillar-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 13px;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 400;
+    }
+    .pillar-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(245,240,232,0.65);
+    }
+
+    .philosophy-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(20px, 3vw, 30px);
+      color: rgba(245,240,232,0.55);
+      line-height: 1.7;
+      padding: 40px;
+      border: 1px solid rgba(201,168,76,0.12);
+      position: relative;
+    }
+    .philosophy-quote::before {
+      content: '"';
+      position: absolute;
+      top: -20px; left: 30px;
+      font-size: 80px;
+      color: var(--gold);
+      opacity: 0.3;
+      line-height: 1;
+    }
+
+    /* ─── FEATURES ─── */
+    #features {
+      padding: 120px 44px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .features-header { margin-bottom: 80px; }
+    .features-header h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      color: var(--cream);
+      font-weight: 400;
+    }
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: rgba(201,168,76,0.08);
+    }
+    .feature-item {
+      background: #050a12;
+      padding: 48px 44px;
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      transition: background 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-item:hover { background: rgba(201,168,76,0.04); }
+    .feature-icon-wrap {
+      width: 50px; height: 50px;
+      border: 1px solid rgba(201,168,76,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      color: var(--gold);
+    }
+    .feature-content h3 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 14px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+    .feature-content p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(245,240,232,0.6);
+    }
+
+    /* ─── CONTACT / WAITLIST ─── */
+    #contact {
+      padding: 160px 44px;
+      text-align: center;
+      background: linear-gradient(180deg, transparent, rgba(201,168,76,0.04) 50%, transparent);
+    }
+    #contact h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(28px, 4.5vw, 56px);
+      color: var(--cream);
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    #contact .sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: rgba(245,240,232,0.5);
+      margin-bottom: 60px;
+    }
+    .email-form {
+      display: flex;
+      max-width: 480px;
+      margin: 0 auto 40px;
+      gap: 0;
+    }
+    .email-form input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-right: none;
+      color: var(--cream);
+      padding: 16px 22px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      outline: none;
+    }
+    .email-form input::placeholder { color: rgba(245,240,232,0.25); }
+    .email-form input:focus { border-color: rgba(201,168,76,0.6); }
+    .email-form button {
+      background: var(--gold);
+      border: none;
+      color: #050a12;
+      padding: 16px 28px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .email-form button:hover { background: var(--gold-light); }
+
+    .contact-socials {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 60px;
+    }
+    .social-link {
+      color: rgba(245,240,232,0.35);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .social-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .social-link:hover { color: var(--gold); }
+    .social-link:hover::after { width: 100%; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 40px 44px;
+      border-top: 1px solid rgba(201,168,76,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-brand {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 13px;
+      color: rgba(245,240,232,0.35);
+    }
+    .footer-text {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: rgba(245,240,232,0.2);
+    }
+
+    /* ─── SCROLL REVEALS ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── KEYFRAMES ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 20px 22px; }
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 50px; }
+      .pillars { grid-template-columns: 1fr; gap: 24px; }
+      .features-list { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 14px; text-align: center; }
+      .email-form { flex-direction: column; }
+      .email-form input { border-right: 1px solid rgba(201,168,76,0.25); border-bottom: none; }
+      #lang-switcher { top: 20px; right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Background Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Language Switcher -->
+<div id="lang-switcher">
+  <button class="active" onclick="setLang('en')">EN</button>
+  <button onclick="setLang('fr')">FR</button>
+  <button onclick="setLang('bg')">БГ</button>
+</div>
+
+<!-- Navigation -->
+<nav>
+  <a class="nav-logo" href="#">Le Roulv</a>
+  <ul class="nav-links">
+    <li><a href="#manifesto" data-i18n="nav_manifesto">Manifesto</a></li>
+    <li><a href="#about" data-i18n="nav_about">About</a></li>
+    <li><a href="#fabrics" data-i18n="nav_fabrics">Fabrics</a></li>
+    <li><a href="#philosophy" data-i18n="nav_philosophy">Philosophy</a></li>
+    <li><a href="#contact" data-i18n="nav_contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <p class="hero-eyebrow" data-i18n="hero_eyebrow">Luxury · Faith · Imperfection</p>
+
+  <div class="logo-container">
+    <svg class="logo-svg" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Hand-drawn figure reconstructed from sketch: human form + R letterform + cross crown -->
+      <g stroke="#c9a84c" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <!-- Cross / Crown at top -->
+        <line x1="110" y1="22" x2="110" y2="38" stroke-width="1.8"/>
+        <line x1="103" y1="29" x2="117" y2="29" stroke-width="1.4"/>
+        <!-- Head -->
+        <circle cx="110" cy="46" r="5" stroke-width="1.4"/>
+        <!-- Torso / spine -->
+        <line x1="110" y1="51" x2="110" y2="110" stroke-width="1.8"/>
+        <!-- Left arm -->
+        <path d="M110 68 Q95 72 88 82" stroke-width="1.5"/>
+        <!-- Right arm curved outward — forming the R arc -->
+        <path d="M110 60 Q134 56 138 72 Q140 84 122 90" stroke-width="1.8"/>
+        <!-- R leg diagonal (lower bowl) -->
+        <path d="M116 90 Q132 108 140 126" stroke-width="1.8"/>
+        <!-- Left leg -->
+        <path d="M110 110 Q102 130 96 150" stroke-width="1.8"/>
+        <!-- Right leg -->
+        <path d="M110 110 Q118 132 126 148" stroke-width="1.8"/>
+        <!-- Left foot curl -->
+        <path d="M96 150 Q92 156 98 158" stroke-width="1.3"/>
+        <!-- Right foot -->
+        <path d="M126 148 Q130 154 136 152" stroke-width="1.3"/>
+        <!-- Flowing cape/movement line top right -->
+        <path d="M132 58 Q152 46 162 62 Q168 72 158 80" stroke-width="1.3" stroke-dasharray="3 2"/>
+        <!-- Subtle ground mark -->
+        <line x1="88" y1="165" x2="142" y2="165" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      <!-- Subtle glow -->
+      <circle cx="110" cy="100" r="80" fill="url(#glow)" opacity="0.08"/>
+      <defs>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c9a84c"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <h1 class="hero-title">Le Roulv<br/><span>Ghost</span></h1>
+  <p class="hero-sub" data-i18n="hero_sub">Born from faith. Built on imperfection.</p>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span data-i18n="scroll">Scroll</span>
+  </div>
+</section>
+
+<!-- ══ MANIFESTO ══ -->
+<section id="manifesto">
+  <div class="manifesto-inner reveal">
+    <div class="section-label" data-i18n="manifesto_label">Manifesto</div>
+    <p class="manifesto-text" data-i18n="manifesto_text">
+      I am 17 years old. I built this around <em>God's eternal knowledge</em>,
+      around life's challenges, the ups and the downs, the eternal love for creativity.
+      No enemies. No bad luck — <em>only God is good.</em>
+      I've been a footballer. A dreamer. And God made it so great
+      that I did not think I would ever stand here.
+      People look at me differently now — because of character,
+      hard work, mistakes, truths. This brand is not built without intention.
+      It is built from <em>years of imperfection</em>.
+      I love the imperfect, like Jesus Christ.
+    </p>
+    <div class="manifesto-signature">
+      <div class="signature-line"></div>
+      <span class="signature-text">Ilko — Founder, Le Roulv</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-left reveal">
+      <div class="section-label" data-i18n="about_label">About</div>
+      <h2 data-i18n="about_title">Not a brand.<br/><span>A testimony.</span></h2>
+      <p class="about-body" data-i18n="about_body">
+        Le Roulv — Ghost was born in Devin, Bulgaria, by a 17-year-old with no shortcuts and no good luck —
+        only God, family, faith and the fire that comes from living through everything.
+        The logo is a figure in motion: human, imperfect, alive.
+        The cross in the crown is not decoration. It is the foundation.
+        Everything here is intentional.
+      </p>
+    </div>
+    <div class="about-right reveal">
+      <div class="about-stat">
+        <div class="stat-number">17</div>
+        <div class="stat-label" data-i18n="stat_age">Age of founding</div>
+      </div>
+      <div class="about-stat">
+        <div class="stat-number">∞</div>
+        <div class="stat-label" data-i18n="stat_faith">Years of faith</div>
+      </div>
+      <div class="about-stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label" data-i18n="stat_shortcuts">Shortcuts taken</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FABRICS ══ -->
+<section id="fabrics">
+  <div class="fabrics-header reveal">
+    <div class="section-label" style="justify-content:center" data-i18n="fabrics_label">The Materials</div>
+    <h2 data-i18n="fabrics_title">Chosen by Conscience</h2>
+    <p data-i18n="fabrics_sub">Every thread carries meaning. Every fabric chosen for what it stands for.</p>
+  </div>
+  <div class="fabrics-grid">
+    <div class="fabric-card reveal">
+      <div class="fabric-icon">🌿</div>
+      <div class="fabric-name">Linen</div>
+      <div class="fabric-origin">Flax · Ancient Origin</div>
+      <p class="fabric-desc">
+        One of the oldest textiles on Earth. Breathable, durable, and only more beautiful with time and wear.
+        Linen does not hide its past — it wears it with grace.
+      </p>
+      <div class="fabric-props">
+        <span class="prop-tag">Breathable</span>
+        <span class="prop-tag">Durable</span>
+        <span class="prop-tag">Natural</span>
+        <span class="prop-tag">Timeless</span>
+      </div>
+    </div>
+    <div class="fabric-card reveal">
+      <div class="fabric-icon">✦</div>
+      <div class="fabric-name">Ramie</div>
+      <div class="fabric-origin">Nettle · Sacred Fibre</div>
+      <p class="fabric-desc">
+        The special one. Known as China Grass — one of the strongest natural fibres,
+        with a natural lustre that rivals silk. Ramie is rare, honest, and extraordinary.
+        The choice of those who refuse ordinary.
+      </p>
+      <div class="fabric-props">
+        <span class="prop-tag">Ultra-Strong</span>
+        <span class="prop-tag">Natural Lustre</span>
+        <span class="prop-tag">Rare</span>
+        <span class="prop-tag">Sustainable</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PHILOSOPHY ══ -->
+<section id="philosophy">
+  <div class="section-label" style="justify-content:center" data-i18n="phil_label">Philosophy</div>
+  <h2 data-i18n="phil_title">What We Stand For</h2>
+  <div class="pillars">
+    <div class="pillar reveal">
+      <div class="pillar-num">I</div>
+      <div class="pillar-title" data-i18n="p1_title">Imperfection</div>
+      <p class="pillar-text" data-i18n="p1_text">
+        The little lines that are not perfectly straight — that is the imperfect, but yet the best and the most perfect thing we can experience.
+      </p>
+    </div>
+    <div class="pillar reveal">
+      <div class="pillar-num">II</div>
+      <div class="pillar-title" data-i18n="p2_title">Faith</div>
+      <p class="pillar-text" data-i18n="p2_text">
+        All that potential, grounded in faith. God is not luck — God is direction.
+        Every stitch, every choice, every story here begins there.
+      </p>
+    </div>
+    <div class="pillar reveal">
+      <div class="pillar-num">III</div>
+      <div class="pillar-title" data-i18n="p3_title">Character</div>
+      <p class="pillar-text" data-i18n="p3_text">
+        People change when they see character built through hardship.
+        This brand is not worn. It is earned.
+      </p>
+    </div>
+  </div>
+  <div class="philosophy-quote reveal" data-i18n="phil_quote">
+    There is also how much of a good choice you will make —
+    how you will treat the very God-given precious things you have.
+  </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section id="features">
+  <div class="features-header reveal">
+    <div class="section-label" data-i18n="feat_label">The Experience</div>
+    <h2 data-i18n="feat_title">What Le Roulv Offers</h2>
+  </div>
+  <div class="features-list">
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">✦</div>
+      <div class="feature-content">
+        <h3 data-i18n="f1_title">Limited Pieces</h3>
+        <p data-i18n="f1_text">Each item produced in limited numbers. You do not mass-consume what is sacred.</p>
+      </div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">⊕</div>
+      <div class="feature-content">
+        <h3 data-i18n="f2_title">Conscious Fabrics</h3>
+        <p data-i18n="f2_text">Linen and Ramie — natural, strong, and chosen with intention over convenience.</p>
+      </div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">◈</div>
+      <div class="feature-content">
+        <h3 data-i18n="f3_title">Hand-Drawn Identity</h3>
+        <p data-i18n="f3_text">The logo was drawn by hand. Imperfect lines. A human being in motion. Completely original.</p>
+      </div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">☩</div>
+      <div class="feature-content">
+        <h3 data-i18n="f4_title">Faith-Rooted</h3>
+        <p data-i18n="f4_text">This is not a trend brand. The cross in the crown is structural — faith is the foundation.</p>
+      </div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">◉</div>
+      <div class="feature-content">
+        <h3 data-i18n="f5_title">Trilingual</h3>
+        <p data-i18n="f5_text">Speaking in English, French, and Bulgarian — rooted locally, reaching globally.</p>
+      </div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap">⋄</div>
+      <div class="feature-content">
+        <h3 data-i18n="f6_title">Ghost Aesthetic</h3>
+        <p data-i18n="f6_text">Minimal. Present. Unforgettable. Like a ghost — you feel it before you see it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="section-label" style="justify-content:center" data-i18n="contact_label">Join</div>
+  <h2 data-i18n="contact_title">Be First.</h2>
+  <p class="sub" data-i18n="contact_sub">Join the waitlist. Be part of what is being built.</p>
+  <div class="email-form">
+    <input type="email" id="email-input" data-i18n-placeholder="email_placeholder" placeholder="Your email address" />
+    <button onclick="joinWaitlist()" data-i18n="email_btn">Enter</button>
+  </div>
+  <p id="join-msg" style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold);font-size:16px;min-height:24px;"></p>
+  <div class="contact-socials">
+    <a class="social-link" href="#" data-i18n="social_ig">Instagram</a>
+    <a class="social-link" href="#" data-i18n="social_em">Email</a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <span class="footer-brand">Le Roulv — Ghost</span>
+  <span class="footer-text" data-i18n="footer_text">© 2026 · Devin, Bulgaria · All rights reserved</span>
+</footer>
+
+<script>
+/* ─── i18n ─── */
+const translations = {
+  en: {
+    nav_manifesto: "Manifesto", nav_about: "About", nav_fabrics: "Fabrics",
+    nav_philosophy: "Philosophy", nav_contact: "Contact",
+    hero_eyebrow: "Luxury · Faith · Imperfection",
+    hero_sub: "Born from faith. Built on imperfection.",
+    scroll: "Scroll",
+    manifesto_label: "Manifesto",
+    manifesto_text: `I am 17 years old. I built this around <em>God's eternal knowledge</em>, around life's challenges, the ups and the downs, the eternal love for creativity. No enemies. No bad luck — <em>only God is good.</em> I've been a footballer. A dreamer. And God made it so great that I did not think I would ever stand here. People look at me differently now — because of character, hard work, mistakes, truths. This brand is not built without intention. It is built from <em>years of imperfection</em>. I love the imperfect, like Jesus Christ.`,
+    about_label: "About", about_title: `Not a brand.<br/><span>A testimony.</span>`,
+    about_body: `Le Roulv — Ghost was born in Devin, Bulgaria, by a 17-year-old with no shortcuts and no good luck — only God, family, faith and the fire that comes from living through everything. The logo is a figure in motion: human, imperfect, alive. The cross in the crown is not decoration. It is the foundation.`,
+    stat_age: "Age of founding", stat_faith: "Years of faith", stat_shortcuts: "Shortcuts taken",
+    fabrics_label: "The Materials", fabrics_title: "Chosen by Conscience",
+    fabrics_sub: "Every thread carries meaning. Every fabric chosen for what it stands for.",
+    phil_label: "Philosophy", phil_title: "What We Stand For",
+    p1_title: "Imperfection", p1_text: "The little lines that are not perfectly straight — that is the imperfect, but yet the best and the most perfect thing we can experience.",
+    p2_title: "Faith", p2_text: "All that potential, grounded in faith. God is not luck — God is direction. Every stitch, every choice begins there.",
+    p3_title: "Character", p3_text: "People change when they see character built through hardship. This brand is not worn. It is earned.",
+    phil_quote: `There is also how much of a good choice you will make — how you will treat the very God-given precious things you have.`,
+    feat_label: "The Experience", feat_title: "What Le Roulv Offers",
+    f1_title: "Limited Pieces", f1_text: "Each item produced in limited numbers. You do not mass-consume what is sacred.",
+    f2_title: "Conscious Fabrics", f2_text: "Linen and Ramie — natural, strong, and chosen with intention over convenience.",
+    f3_title: "Hand-Drawn Identity", f3_text: "The logo was drawn by hand. Imperfect lines. A human being in motion. Completely original.",
+    f4_title: "Faith-Rooted", f4_text: "This is not a trend brand. The cross in the crown is structural — faith is the foundation.",
+    f5_title: "Trilingual", f5_text: "Speaking in English, French, and Bulgarian — rooted locally, reaching globally.",
+    f6_title: "Ghost Aesthetic", f6_text: "Minimal. Present. Unforgettable. Like a ghost — you feel it before you see it.",
+    contact_label: "Join", contact_title: "Be First.",
+    contact_sub: "Join the waitlist. Be part of what is being built.",
+    email_placeholder: "Your email address", email_btn: "Enter",
+    social_ig: "Instagram", social_em: "Email",
+    footer_text: "© 2026 · Devin, Bulgaria · All rights reserved",
+    join_success: "You are on the list. Welcome.",
+    join_invalid: "Please enter a valid email."
+  },
+  fr: {
+    nav_manifesto: "Manifeste", nav_about: "À Propos", nav_fabrics: "Matières",
+    nav_philosophy: "Philosophie", nav_contact: "Contact",
+    hero_eyebrow: "Luxe · Foi · Imperfection",
+    hero_sub: "Né de la foi. Bâti sur l'imperfection.",
+    scroll: "Défiler",
+    manifesto_label: "Manifeste",
+    manifesto_text: `J'ai 17 ans. J'ai construit cela autour de <em>la connaissance éternelle de Dieu</em>, autour des défis de la vie, des hauts et des bas, de l'amour éternel pour la créativité. Pas d'ennemis. Pas de chance — <em>seul Dieu est bon.</em> J'ai été footballeur. Rêveur. Et Dieu l'a rendu si grand que je ne pensais pas me retrouver là. Les gens me voient différemment maintenant — à cause du caractère, du travail, des erreurs, des vérités. Cette marque n'est pas construite sans intention. Elle est bâtie sur <em>des années d'imperfection</em>.`,
+    about_label: "À Propos", about_title: `Pas une marque.<br/><span>Un témoignage.</span>`,
+    about_body: `Le Roulv — Ghost est né à Devin, Bulgarie, par un jeune de 17 ans sans raccourcis ni chance — seulement Dieu, la famille, la foi et le feu de vivre pleinement.`,
+    stat_age: "Âge de fondation", stat_faith: "Années de foi", stat_shortcuts: "Raccourcis pris",
+    fabrics_label: "Les Matières", fabrics_title: "Choisis en conscience",
+    fabrics_sub: "Chaque fil porte un sens. Chaque tissu choisi pour ce qu'il représente.",
+    phil_label: "Philosophie", phil_title: "Ce que nous défendons",
+    p1_title: "Imperfection", p1_text: "Les petites lignes qui ne sont pas parfaitement droites — c'est l'imparfait, mais pourtant la chose la plus parfaite que nous puissions vivre.",
+    p2_title: "Foi", p2_text: "Tout ce potentiel, ancré dans la foi. Dieu n'est pas la chance — Dieu est la direction.",
+    p3_title: "Caractère", p3_text: "Les gens changent quand ils voient un caractère forgé dans l'épreuve. Cette marque ne se porte pas. Elle se mérite.",
+    phil_quote: `Il y a aussi la qualité de vos choix — comment vous traiterez ces précieuses choses données par Dieu.`,
+    feat_label: "L'Expérience", feat_title: "Ce que Le Roulv offre",
+    f1_title: "Pièces Limitées", f1_text: "Chaque pièce produite en nombre limité. On ne consomme pas en masse ce qui est sacré.",
+    f2_title: "Matières Conscientes", f2_text: "Lin et Ramie — naturels, solides, choisis avec intention.",
+    f3_title: "Identité Dessinée à la Main", f3_text: "Le logo a été dessiné à la main. Des lignes imparfaites. Un être humain en mouvement.",
+    f4_title: "Ancré dans la Foi", f4_text: "Ce n'est pas une marque de tendance. La croix dans la couronne est structurelle.",
+    f5_title: "Trilingue", f5_text: "Parlant anglais, français et bulgare — ancré localement, atteignant le monde.",
+    f6_title: "Esthétique Fantôme", f6_text: "Minimal. Présent. Inoubliable. Comme un fantôme — on le ressent avant de le voir.",
+    contact_label: "Rejoindre", contact_title: "Soyez Premier.",
+    contact_sub: "Rejoignez la liste d'attente. Faites partie de ce qui se construit.",
+    email_placeholder: "Votre adresse email", email_btn: "Entrer",
+    social_ig: "Instagram", social_em: "Email",
+    footer_text: "© 2026 · Devin, Bulgarie · Tous droits réservés",
+    join_success: "Vous êtes sur la liste. Bienvenue.",
+    join_invalid: "Veuillez entrer un email valide."
+  },
+  bg: {
+    nav_manifesto: "Манифест", nav_about: "За Нас", nav_fabrics: "Материи",
+    nav_philosophy: "Философия", nav_contact: "Контакт",
+    hero_eyebrow: "Лукс · Вяра · Несъвършенство",
+    hero_sub: "Роден от вяра. Изграден върху несъвършенство.",
+    scroll: "Скролни",
+    manifesto_label: "Манифест",
+    manifesto_text: `На 17 години съм. Изградих това около <em>вечното знание на Бог</em>, около жизнените предизвикателства, върховете и паденията, вечната любов към творчеството. Без врагове. Без лоши хора — <em>само Бог е добър.</em> Бил съм футболист. Мечтател. И Бог го направи толкова велико, че не мислех, че ще бъда тук. Хората ме гледат различно — заради характера, труда, грешките, истините. Тази марка не е без намерение. Тя е изградена от <em>години несъвършенство</em>. Обичам несъвършеното, като Исус Христос.`,
+    about_label: "За Нас", about_title: `Не марка.<br/><span>Свидетелство.</span>`,
+    about_body: `Le Roulv — Ghost е роден в Девин, България, от 17-годишен без преки пътища и без щастие — само Бог, семейство, вяра и огън от преживяното.`,
+    stat_age: "Възраст при основаване", stat_faith: "Години вяра", stat_shortcuts: "Взети преки пътища",
+    fabrics_label: "Материите", fabrics_title: "Избрани по съвест",
+    fabrics_sub: "Всяка нишка носи смисъл. Всяка тъкан избрана заради значението си.",
+    phil_label: "Философия", phil_title: "За какво стоим",
+    p1_title: "Несъвършенство", p1_text: "Малките линии, които не са съвсем прави — това е несъвършеното, но и най-съвършеното нещо, което можем да изживеем.",
+    p2_title: "Вяра", p2_text: "Целият потенциал, закотвен във вярата. Бог не е късмет — Бог е посока.",
+    p3_title: "Характер", p3_text: "Хората се променят когато видят характер, изграден чрез трудности. Тази марка не се носи. Тя се заслужава.",
+    phil_quote: `Важно е и колко добър избор ще направиш — как ще се отнасяш към ценните неща, дадени ти от Бога.`,
+    feat_label: "Изживяването", feat_title: "Какво предлага Le Roulv",
+    f1_title: "Лимитирани Бройки", f1_text: "Всяка дреха в ограничен брой. Не се консумира в масови количества онова, което е свещено.",
+    f2_title: "Съзнателни Тъкани", f2_text: "Лен и рами — естествени, здрави, избрани с намерение.",
+    f3_title: "Ръчно Рисувана Идентичност", f3_text: "Логото е нарисувано на ръка. Несъвършени линии. Човек в движение. Напълно оригинален.",
+    f4_title: "Вяра в Основата", f4_text: "Това не е модна марка. Кръстът в короната е структурен — вярата е основата.",
+    f5_title: "Триезичен", f5_text: "Говорим на английски, френски и български — укоренени локално, достигаме глобално.",
+    f6_title: "Призрачна Естетика", f6_text: "Минимален. Присъстващ. Незабравим. Като призрак — усещаш го преди да го видиш.",
+    contact_label: "Присъедини се", contact_title: "Бъди Пръв.",
+    contact_sub: "Запиши се в списъка на чакащите. Стани част от онова, което се изгражда.",
+    email_placeholder: "Твоят email адрес", email_btn: "Влез",
+    social_ig: "Инстаграм", social_em: "Имейл",
+    footer_text: "© 2026 · Девин, България · Всички права запазени",
+    join_success: "Вие сте в списъка. Добре дошли.",
+    join_invalid: "Моля въведете валиден имейл."
+  }
+};
+
+let currentLang = 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('#lang-switcher button').forEach(b => b.classList.remove('active'));
+  document.querySelector(`#lang-switcher button[onclick="setLang('${lang}')"]`).classList.add('active');
+  const t = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (t[key]) el.placeholder = t[key];
+  });
+}
+
+function joinWaitlist() {
+  const email = document.getElementById('email-input').value;
+  const msg = document.getElementById('join-msg');
+  const t = translations[currentLang];
+  if (!email || !email.includes('@')) {
+    msg.style.color = '#c0392b';
+    msg.textContent = t.join_invalid;
+  } else {
+    msg.style.color = 'var(--gold)';
+    msg.textContent = t.join_success;
+    document.getElementById('email-input').value = '';
+  }
+}
+
+/* ─── CUSTOM CURSOR ─── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  }, 60);
+});
+
+/* ─── SCROLL REVEAL ─── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ─── CANVAS: WATER + STARS ─── */
+(function initCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [], waves = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Stars
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 260; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.4 + 0.2,
+        alpha: Math.random() * 0.7 + 0.1,
+        speed: Math.random() * 0.004 + 0.001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  // Wave parameters
+  const waveCount = 6;
+  function initWaves() {
+    waves = [];
+    for (let i = 0; i < waveCount; i++) {
+      waves.push({
+        y: H * (0.45 + i * 0.12),
+        amp: 18 + i * 8,
+        freq: 0.004 - i * 0.0003,
+        speed: 0.0008 + i * 0.0003,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.07 - i * 0.009
+      });
+    }
+  }
+
+  initStars();
+  initWaves();
+
+  let tick = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Stars
+    stars.forEach(s => {
+      s.phase += s.speed;
+      const a = s.alpha * (0.7 + 0.3 * Math.sin(s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(230, 215, 170, ${a})`;
+      ctx.fill();
+    });
+
+    // Gold star clusters
+    if (tick % 180 === 0) {
+      ctx.save();
+      const sx = Math.random() * W;
+      const sy = Math.random() * H * 0.5;
+      const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, 60);
+      grd.addColorStop(0, 'rgba(201,168,76,0.08)');
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd;
+      ctx.fillRect(sx - 60, sy - 60, 120, 120);
+      ctx.restore();
+    }
+
+    // Water waves
+    waves.forEach((w, i) => {
+      w.phase += w.speed;
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      for (let x = 0; x <= W; x += 4) {
+        const y = w.y + Math.sin(x * w.freq + w.phase) * w.amp
+                      + Math.sin(x * w.freq * 1.7 + w.phase * 0.7) * w.amp * 0.4;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H);
+      ctx.closePath();
+
+      const wGrad = ctx.createLinearGradient(0, w.y - w.amp, 0, w.y + w.amp + 20);
+      wGrad.addColorStop(0, `rgba(100, 160, 220, ${w.alpha * 1.2})`);
+      wGrad.addColorStop(0.5, `rgba(60, 120, 180, ${w.alpha})`);
+      wGrad.addColorStop(1, `rgba(30, 60, 120, ${w.alpha * 0.4})`);
+      ctx.fillStyle = wGrad;
+      ctx.fill();
+    });
+
+    // Subtle ambient glow bottom
+    const botGrad = ctx.createLinearGradient(0, H * 0.7, 0, H);
+    botGrad.addColorStop(0, 'transparent');
+    botGrad.addColorStop(1, 'rgba(13, 30, 55, 0.7)');
+    ctx.fillStyle = botGrad;
+    ctx.fillRect(0, H * 0.7, W, H * 0.3);
+
+    tick++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
